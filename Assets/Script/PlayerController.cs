@@ -18,8 +18,14 @@ public class PlayerController : MonoBehaviour
     private float movementX;
     private float movementY;
 
+    public float jumpForce = 3.0f; // Fuerza de salto
+    private bool isGrounded = true; // Variable para verificar si está en el suelo
+
+
     // Variable para contar el número total de PickUps en la escena
     private int totalPickups;
+
+    
 
     // Start se llama antes del primer frame
     void Start()
@@ -31,13 +37,37 @@ public class PlayerController : MonoBehaviour
 
         // Contar automáticamente los pickups al inicio de la escena
         totalPickups = GameObject.FindGameObjectsWithTag("PickUp").Length;
-        Debug.Log("Total de PickUps en Start(): " + totalPickups);
+        
 
         // Mostrar el número de partida en la UI
         partidaText.text = "Nivel: " + partidaNumero.ToString();
         partidaText.gameObject.SetActive(true); // Asegurar que el texto de nivel está visible
-    }
 
+        
+    }
+    private void Update()
+    {
+        // Detectar si se presiona la tecla de salto y la bola está en el suelo
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            Debug.Log("Tecla de salto detectada y en contacto con el suelo");
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse); // Aplicar fuerza de salto
+            isGrounded = false; // Evitar saltos múltiples hasta tocar el suelo de nuevo
+        }
+
+        // Comprobar si la bola ha caído  z < -10)
+        if ( transform.position.y < -10)
+        {
+
+            transform.position = new Vector3(0, 0.5f, 0); // Establecer posición en (0, 0.5, 0)
+            rb.velocity = Vector3.zero; // Detener el movimiento
+            rb.angularVelocity = Vector3.zero; // Detener la rotación
+
+
+        }
+    }
+    
+   
     private void OnMove(InputValue movementValue)
     {
         Vector2 movementVector = movementValue.Get<Vector2>();
@@ -50,6 +80,8 @@ public class PlayerController : MonoBehaviour
         {
             partidaText.gameObject.SetActive(false);
         }
+
+       
     }
 
     // FixedUpdate es llamado una vez por frame de física
@@ -57,6 +89,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
         rb.AddForce(movement * speed);
+        
     }
 
     // Método que detecta la recolección de objetos (PickUp)
@@ -69,11 +102,26 @@ public class PlayerController : MonoBehaviour
             SetCountText(); // Actualizar el texto del contador
         }
     }
+    // Método que detecta que esta tocando suelo Ground
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+        }
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
+        }
+    }
 
     // Actualizar el texto que muestra el número de objetos recogidos
     void SetCountText()
     {
-        countText.text = "Count: " + count.ToString() + "/" + totalPickups.ToString(); // Mostrar el progreso en la UI
+        countText.text = "Count: " + count.ToString() ; // Mostrar el progreso en la UI
 
         Debug.Log("Count: " + count + " / TotalPickUps: " + totalPickups);
 
