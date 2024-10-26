@@ -25,7 +25,9 @@ public class PlayerController : MonoBehaviour
     // Variable para contar el número total de PickUps en la escena
     private int totalPickups;
 
-    
+    // Nueva propiedad pública para saber si el jugador ha comenzado a moverse
+    public bool hasStartedMoving { get; private set; } = false;
+
 
     // Start se llama antes del primer frame
     void Start()
@@ -75,6 +77,12 @@ public class PlayerController : MonoBehaviour
         movementX = movementVector.x;
         movementY = movementVector.y;
 
+        // Detectar el primer movimiento del jugador
+        if (!hasStartedMoving && (movementX != 0 || movementY != 0))
+        {
+            hasStartedMoving = true;
+        }
+
         // Solo ocultar el texto de nivel la primera vez que el jugador se mueva
         if (movementX != 0 || movementY != 0)
         {
@@ -91,6 +99,9 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(movement * speed);
         
     }
+    
+        
+    
 
     // Método que detecta la recolección de objetos (PickUp)
     private void OnTriggerEnter(Collider other)
@@ -116,6 +127,33 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = false;
         }
+
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            // Destroy the current object
+            //Destroy(gameObject);
+            // Update the winText to display "You Lose!"
+            winText.gameObject.SetActive(true);
+            winText.GetComponent<TextMeshProUGUI>().text = "You Lose!";
+
+
+            hasStartedMoving = false;
+
+
+            // Iniciar la corrutina para reiniciar la escena después de 3 segundos
+            StartCoroutine(RestartSceneAfterDelay());
+
+
+        }
+    }
+
+    // Corrutina para reiniciar la escena después de mostrar el mensaje de derrota
+    IEnumerator RestartSceneAfterDelay()
+    {
+        yield return new WaitForSeconds(3); // Esperar 3 segundos
+
+        // Reiniciar la escena actual
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     // Actualizar el texto que muestra el número de objetos recogidos
@@ -130,6 +168,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Todos los objetos recogidos. Transición a la siguiente escena.");
             winText.gameObject.SetActive(true);  // Mostrar el texto de victoria
+            Destroy(GameObject.FindGameObjectWithTag("Enemy"));
             StartCoroutine(TransitionToNextLevel()); // Transición a la siguiente escena
         }
         else
