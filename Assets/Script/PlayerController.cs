@@ -120,15 +120,6 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
         }
-    }
-
-    // ------------------------------------------------- DETECTA SI NO HAY COLISIONES FISICAS, AMBOS OBJETOS COLLIDER
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = false;
-        }
 
         if (collision.gameObject.CompareTag("Enemy"))
         {
@@ -147,6 +138,17 @@ public class PlayerController : MonoBehaviour
 
 
         }
+    }
+
+    // ------------------------------------------------- DETECTA SI NO HAY COLISIONES FISICAS, AMBOS OBJETOS COLLIDER
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
+        }
+
+        
     }
 
     // CARGA LA MISMA ESCENA EN LA QUE ESTA
