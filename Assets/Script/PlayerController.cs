@@ -2,74 +2,74 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using UnityEngine.SceneManagement; // Necesario para reiniciar la escena
+using UnityEngine.SceneManagement; // Reiniciar la escena
 
 public class PlayerController : MonoBehaviour
 {
     public TMP_Text countText;
     public TMP_Text winText;
-    public TMP_Text partidaText; // Texto para mostrar el número de partida
+    public TMP_Text partidaText; 
 
     public float speed = 10.0f;
     private Rigidbody rb;
+
     private int count;
-    private static int partidaNumero = 1; // Contador de partida
+    private static int partidaNumero = 1; 
 
     private float movementX;
     private float movementY;
 
-    public float jumpForce = 3.0f; // Fuerza de salto
-    private bool isGrounded = true; // Variable para verificar si está en el suelo
+    public float jumpForce = 3.0f; 
+    private bool isGrounded = true; 
 
-
-    // Variable para contar el número total de PickUps en la escena
     private int totalPickups;
 
-    // Nueva propiedad pública para saber si el jugador ha comenzado a moverse
+    // Saber si el jugador ha comenzado a moverse
     public bool hasStartedMoving { get; private set; } = false;
 
 
-    // Start se llama antes del primer frame
+    // ------------------------------------------------------ ANTES DE EMPEZAR, INICIAR VARIABLES
     void Start()
     {
-        count = 0;  // Inicializar el contador de objetos recogidos
-        SetCountText();  // Configurar el texto inicial
-        rb = GetComponent<Rigidbody>();
-        winText.gameObject.SetActive(false); // Ocultar el texto de victoria al inicio
+        count = 0;  
+        SetCountText();  
 
-        // Contar automáticamente los pickups al inicio de la escena
+        rb = GetComponent<Rigidbody>();
+
+        winText.gameObject.SetActive(false); 
+
         totalPickups = GameObject.FindGameObjectsWithTag("PickUp").Length;
         
-
-        // Mostrar el número de partida en la UI
         partidaText.text = "Nivel: " + partidaNumero.ToString();
-        partidaText.gameObject.SetActive(true); // Asegurar que el texto de nivel está visible
+        partidaText.gameObject.SetActive(true); 
 
         
     }
+
+    //------------------------------------- SALTO
     private void Update()
     {
-        // Detectar si se presiona la tecla de salto y la bola está en el suelo
+        
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            Debug.Log("Tecla de salto detectada y en contacto con el suelo");
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse); // Aplicar fuerza de salto
-            isGrounded = false; // Evitar saltos múltiples hasta tocar el suelo de nuevo
+            
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse); 
+            isGrounded = false; // Evitar saltos múltiples 
         }
 
-        // Comprobar si la bola ha caído  z < -10)
+        // Comprobar si la bola ha caído
         if ( transform.position.y < -10)
         {
 
-            transform.position = new Vector3(0, 0.5f, 0); // Establecer posición en (0, 0.5, 0)
-            rb.velocity = Vector3.zero; // Detener el movimiento
-            rb.angularVelocity = Vector3.zero; // Detener la rotación
+            transform.position = new Vector3(0, 0.5f, 0); 
+            rb.velocity = Vector3.zero; 
+            rb.angularVelocity = Vector3.zero; 
 
 
         }
     }
     
-   
+   //------------------------------------------------------------ MOVIMIENTO
     private void OnMove(InputValue movementValue)
     {
         Vector2 movementVector = movementValue.Get<Vector2>();
@@ -77,13 +77,13 @@ public class PlayerController : MonoBehaviour
         movementX = movementVector.x;
         movementY = movementVector.y;
 
-        // Detectar el primer movimiento del jugador
+        // Detectar el primer movimiento 
         if (!hasStartedMoving && (movementX != 0 || movementY != 0))
         {
             hasStartedMoving = true;
         }
 
-        // Solo ocultar el texto de nivel la primera vez que el jugador se mueva
+        // Ocultar el texto de nivel 
         if (movementX != 0 || movementY != 0)
         {
             partidaText.gameObject.SetActive(false);
@@ -92,28 +92,28 @@ public class PlayerController : MonoBehaviour
        
     }
 
-    // FixedUpdate es llamado una vez por frame de física
+    // ---------------------------------------- FixedUpdate es llamado una vez por frame de física
     void FixedUpdate()
     {
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
         rb.AddForce(movement * speed);
         
     }
-    
-        
-    
 
-    // Método que detecta la recolección de objetos (PickUp)
+
+
+
+    //----------------------------------- DETECTA PASO SIN QUE COLISION FISICA, ISTRIGGER ACTIVADO
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("PickUp"))
         {
-            other.gameObject.SetActive(false); // Desactivar el objeto recolectado
-            count++; // Incrementar el contador de objetos recogidos
-            SetCountText(); // Actualizar el texto del contador
+            other.gameObject.SetActive(false); 
+            count++; 
+            SetCountText(); 
         }
     }
-    // Método que detecta que esta tocando suelo Ground
+    // ------------------------------------------------- DETECTA COLISIONES FISICAS, AMBOS OBJETOS COLLIDER
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
@@ -121,6 +121,8 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
         }
     }
+
+    // ------------------------------------------------- DETECTA SI NO HAY COLISIONES FISICAS, AMBOS OBJETOS COLLIDER
     private void OnCollisionExit(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
@@ -147,41 +149,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Corrutina para reiniciar la escena después de mostrar el mensaje de derrota
+    // CARGA LA MISMA ESCENA EN LA QUE ESTA
     IEnumerator RestartSceneAfterDelay()
     {
         yield return new WaitForSeconds(3); // Esperar 3 segundos
 
-        // Reiniciar la escena actual
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // Actualizar el texto que muestra el número de objetos recogidos
-    void SetCountText()
-    {
-        countText.text = "Count: " + count.ToString() ; // Mostrar el progreso en la UI
+    
 
-        Debug.Log("Count: " + count + " / TotalPickUps: " + totalPickups);
-
-        // Verificar si el jugador ha recogido todos los objetos antes de pasar de nivel
-        if (count >= totalPickups && totalPickups > 0)
-        {
-            Debug.Log("Todos los objetos recogidos. Transición a la siguiente escena.");
-            winText.gameObject.SetActive(true);  // Mostrar el texto de victoria
-            Destroy(GameObject.FindGameObjectWithTag("Enemy"));
-            StartCoroutine(TransitionToNextLevel()); // Transición a la siguiente escena
-        }
-        else
-        {
-            Debug.Log("Aún faltan objetos por recoger.");
-        }
-    }
-
-    // Corrutina para esperar antes de cambiar de escena
+    // CARGA SIGUIENTE NIVEL SI HAY Y SI NO VUELVE AL PRIMER NIVEL
     IEnumerator TransitionToNextLevel()
     {
-        yield return new WaitForSeconds(3); // Esperar 3 segundos antes de la transición
-        partidaNumero++; // Incrementar el número de partida
+        yield return new WaitForSeconds(3); // Esperar 3 segundos 
+        partidaNumero++; 
 
         // Verificar si existe una escena siguiente
         if (SceneManager.GetActiveScene().buildIndex + 1 < SceneManager.sceneCountInBuildSettings)
@@ -192,8 +175,26 @@ public class PlayerController : MonoBehaviour
         else
         {
             // Si no hay más escenas, regresar al primer nivel
-            partidaNumero = 1; // Reiniciar el contador de niveles
+            partidaNumero = 1; 
             SceneManager.LoadScene(0); // Cargar la primera escena (índice 0 en Build Settings)
         }
+    }
+
+    // ------------------------------------------------ ACTUALIZAR TEXTO  Y ACTIVA SIGUIENTE NIVEL
+    void SetCountText()
+    {
+        countText.text = "Count: " + count.ToString(); 
+
+        
+
+        
+        if (count >= totalPickups && totalPickups > 0)
+        {
+            
+            winText.gameObject.SetActive(true);  
+            Destroy(GameObject.FindGameObjectWithTag("Enemy"));
+            StartCoroutine(TransitionToNextLevel()); // Transición a la siguiente escena
+        }
+        
     }
 }
