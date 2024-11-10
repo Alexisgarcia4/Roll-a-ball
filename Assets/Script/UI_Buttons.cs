@@ -26,4 +26,12 @@ public class UI_Buttons : MonoBehaviour
     {
         SceneManager.LoadScene(0); // Carga la escena en el índice 0
     }
+    public void VolverASegundaEscena()
+    {
+        SceneManager.LoadScene(1); // Carga la escena en el índice 1
+    }
+    public void VolverATerceraEscena()
+    {
+        SceneManager.LoadScene(2); // Carga la escena en el índice 3
+    }
 }

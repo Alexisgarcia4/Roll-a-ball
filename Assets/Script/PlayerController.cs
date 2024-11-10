@@ -203,7 +203,7 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(3); // Esperar 3 segundos
         
-
+        /**
         // Si estamos en la primera escena (índice 0)
         if (SceneManager.GetActiveScene().buildIndex == 0)
         {
@@ -212,7 +212,7 @@ public class PlayerController : MonoBehaviour
         }
         // Si estamos en la segunda escena (índice 1)
         else if (SceneManager.GetActiveScene().buildIndex == 1)
-        {
+        {**/
             // Mostrar el mensaje de victoria y los botones de Cerrar Juego y Volver al Inicio
             winText.gameObject.SetActive(true);
             winText.GetComponent<TextMeshProUGUI>().text = "You Win!";
@@ -222,7 +222,7 @@ public class PlayerController : MonoBehaviour
 
             if (volverInicioButton != null)
                 volverInicioButton.SetActive(true);
-        }
+       // }
     }
 
     // ------------------------------------------------ ACTUALIZAR TEXTO  Y ACTIVA SIGUIENTE NIVEL
